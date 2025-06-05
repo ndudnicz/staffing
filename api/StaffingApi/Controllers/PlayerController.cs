@@ -25,8 +25,15 @@ public class PlayerController(
     [HttpPost]
     public async Task<IActionResult> CreateAsync(Player player)
     {
-        if (player.LineUpIds.Any())
-        {        
+        if (player.LineUpIds.Length > 0)
+        {
+            foreach (var lineUpId in player.LineUpIds)
+            {
+                if (string.IsNullOrEmpty(lineUpId) || !ObjectId.TryParse(lineUpId, out _))
+                {
+                    return BadRequest($"Invalid lineUp ID: {lineUpId}.");
+                }
+            }
             var lineUps = await lineUpService.GetBulkAsync(player.LineUpIds);
             var unknownLineUps = player.LineUpIds
                 .Where(id => lineUps.All(l => l.Id != id))

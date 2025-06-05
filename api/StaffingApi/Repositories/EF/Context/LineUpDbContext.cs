@@ -8,7 +8,7 @@ namespace StaffingApi.Repositories.EF.Context;
 public class LineUpDbContext(DbContextOptions options) : DbContext(options), ILineUpDbContext
 {
     public DbSet<LineUp> LineUps { get; init; }
-    private const string CollectionName = "players";
+    private const string CollectionName = "lineups";
     
     public static LineUpDbContext Create(IMongoConfig mongoConfig) =>
         new(new DbContextOptionsBuilder<LineUpDbContext>()
