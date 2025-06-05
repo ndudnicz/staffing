@@ -11,6 +11,8 @@ public class Player: AMyBsonEntity
     // }
     [BsonElement("name")]
     public required string Name { get; set; }
+    [BsonElement("lineUpIds")]
+    public required string[] LineUpIds { get; set; } = [];
     // public List<Position> Positions { get; set; } = [];
     
 }

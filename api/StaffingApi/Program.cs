@@ -1,4 +1,5 @@
 using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Validations.Rules;
 using MongoDB.Driver;
 using StaffingApi.Repositories.EF;
 using StaffingApi.Repositories.EF.Config;
@@ -26,8 +27,13 @@ if (configuration["DatabaseName"] == null)
     throw new ArgumentNullException("DatabaseName", "DatabaseName is not set in the configuration.");
 }
 builder.Services.AddSingleton<IMongoConfig>(s => new MongoConfig(mongoClient, configuration["DatabaseName"]));
+
 builder.Services.AddTransient<IPlayerContextRepository, PlayerContextRepository>();
 builder.Services.AddTransient<IPlayerService, PlayerService>();
+
+builder.Services.AddTransient<ILineUpContextRepository, LineUpContextRepository>();
+builder.Services.AddTransient<ILineUpService, LineUpService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
