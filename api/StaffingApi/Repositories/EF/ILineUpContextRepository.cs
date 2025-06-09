@@ -7,11 +7,10 @@ namespace StaffingApi.Repositories.EF;
 
 public interface ILineUpContextRepository
 {
-    // public string CollectionName { get; }
-    public Task<LineUpDto?> GetAsync(string id);
-    public Task<IEnumerable<LineUpDto>> GetBulkAsync(string[] ids);
-    public Task<LineUpDto?> GetByNameAsync(string name);
-    public Task<LineUpDto> CreateAsync(LineUp element);
-    // public Task<Player> UpdateAsync(Player element);
-    // public Task<bool> DeleteAsync(string id);
+    public Task<LineUp?> GetAsync(string id);
+    public Task<IEnumerable<LineUp>> GetBulkAsync(string[] ids);
+    public Task<LineUp?> GetByNameAsync(string name);
+    public Task<LineUp> CreateAsync(LineUp element);
+    public Task<LineUp?> UpdateAsync(LineUp element);
+    public Task<int> DeleteAsync(string id);
 }

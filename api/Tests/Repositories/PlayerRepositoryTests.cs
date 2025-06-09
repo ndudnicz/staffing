@@ -3,79 +3,79 @@ using MongoDB.Bson;
 using StaffingApi.Entities.Bson;
 using StaffingApi.Repositories.EF;
 using StaffingApi.Repositories.EF.Context;
+using FluentAssertions;
 
-namespace StaffingApi.Tests.Repositories
+namespace StaffingApi.Tests.Repositories;
+
+public class PlayerContextRepositoryTests
 {
-    public class PlayerContextRepositoryTests
+    private static PlayerDbContext GetInMemoryDbContext()
     {
-        private static PlayerDbContext GetInMemoryDbContext()
+        var options = new DbContextOptionsBuilder<PlayerDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        var dbContext = new PlayerDbContext(options);
+        dbContext.Database.EnsureCreated();
+        return dbContext;
+    }
+
+    [Fact]
+    public async Task CreateAsync_ShouldInsertPlayerAndReturn()
+    {
+        // Arrange
+        var context = GetInMemoryDbContext();
+        var repository = new PlayerContextRepository(context);
+        var player = new Player { Name = "Test Player", LineUpIds = [] };
+
+        // Act
+        var result = await repository.CreateAsync(player);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Name.Should().Be("Test Player");
+        result.Id.Should().NotBeNullOrEmpty();
+        context.Players.Count().Should().Be(1);
+    }
+
+    [Fact]
+    public async Task GetAsync_ShouldReturn_WhenIdExists()
+    {
+        // Arrange
+        var context = GetInMemoryDbContext();
+        var player = new Player
         {
-            var options = new DbContextOptionsBuilder<PlayerDbContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()) // unique DB per test
-                .Options;
+            _id = ObjectId.GenerateNewId(),
+            Name = "Test Player",
+            Created = DateTime.UtcNow,
+            LineUpIds = []
+        };
+        context.Players.Add(player);
+        await context.SaveChangesAsync();
 
-            var dbContext = new PlayerDbContext(options);
-            dbContext.Database.EnsureCreated();
-            return dbContext;
-        }
+        var repository = new PlayerContextRepository(context);
 
-        [Fact]
-        public async Task CreateAsync_ShouldInsertPlayerAndReturnDto()
-        {
-            // Arrange
-            var context = GetInMemoryDbContext();
-            var repository = new PlayerContextRepository(context);
-            var player = new Player { Name = "Test Player", LineUpIds = [] };
+        // Act
+        var result = await repository.GetAsync(player._id.ToString());
 
-            // Act
-            var result = await repository.CreateAsync(player);
+        // Assert
+        result.Should().NotBeNull();
+        result.Id.Should().Be(player._id.ToString());
+        result.Name.Should().Be("Test Player");
+    }
 
-            // Assert
-            Assert.NotNull(result);
-            Assert.Equal("Test Player", result.Name);
-            Assert.NotNull(result.Id);
-            Assert.Equal(1, context.Players.Count());
-        }
+    [Fact]
+    public async Task GetAsync_ShouldReturnNull_WhenIdDoesNotExist()
+    {
+        // Arrange
+        var context = GetInMemoryDbContext();
+        var repository = new PlayerContextRepository(context);
+        var fakeId = ObjectId.GenerateNewId().ToString();
 
-        [Fact]
-        public async Task GetAsync_ShouldReturnDto_WhenIdExists()
-        {
-            // Arrange
-            var context = GetInMemoryDbContext();
-            var player = new Player
-            {
-                _id = ObjectId.GenerateNewId(),
-                Name = "Test Player",
-                Created = DateTime.UtcNow,
-                LineUpIds = []
-            };
-            context.Players.Add(player);
-            await context.SaveChangesAsync();
+        // Act
+        var result = await repository.GetAsync(fakeId);
 
-            var repository = new PlayerContextRepository(context);
-
-            // Act
-            var result = await repository.GetAsync(player._id.ToString());
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Equal(player._id.ToString(), result!.Id);
-            Assert.Equal("Test Player", result.Name);
-        }
-
-        [Fact]
-        public async Task GetAsync_ShouldReturnNull_WhenIdDoesNotExist()
-        {
-            // Arrange
-            var context = GetInMemoryDbContext();
-            var repository = new PlayerContextRepository(context);
-            var fakeId = ObjectId.GenerateNewId().ToString();
-
-            // Act
-            var result = await repository.GetAsync(fakeId);
-
-            // Assert
-            Assert.Null(result);
-        }
+        // Assert
+        result.Should().BeNull();
     }
 }

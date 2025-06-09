@@ -9,11 +9,21 @@ public class PlayerService(IPlayerContextRepository repository): IPlayerService
 {
     public async Task<PlayerDto?> GetAsync(string id)
     {
-        return await repository.GetAsync(id);
+        return PlayerDto.FromPlayer(await repository.GetAsync(id));
     }
 
-    public async Task<PlayerDto> CreateAsync(Player player)
+    public async Task<PlayerDto> CreateAsync(CreatePlayerDto dto)
     {
-        return await repository.CreateAsync(player);
+        return PlayerDto.FromPlayer(await repository.CreateAsync(Player.FromCreatePlayerDto(dto)))!;
+    }
+    
+    public async Task<PlayerDto?> UpdateAsync(PlayerDto dto)
+    {
+        return PlayerDto.FromPlayer(await repository.UpdateAsync(Player.FromPlayerDto(dto)));
+    }
+    
+    public async Task<int> DeleteAsync(string id)
+    {
+        return await repository.DeleteAsync(id);
     }
 }

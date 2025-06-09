@@ -23,28 +23,73 @@ public class PlayerController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateAsync(Player player)
+    public async Task<IActionResult> CreateAsync(CreatePlayerDto dto)
     {
-        if (player.LineUpIds.Length > 0)
+        if (dto.LineUpIds.Length > 0)
         {
-            foreach (var lineUpId in player.LineUpIds)
+            foreach (var lineUpId in dto.LineUpIds)
             {
                 if (string.IsNullOrEmpty(lineUpId) || !ObjectId.TryParse(lineUpId, out _))
                 {
-                    return BadRequest($"Invalid lineUp ID: {lineUpId}.");
+                    return BadRequest($"Invalid line up ID: {lineUpId}.");
                 }
             }
-            var lineUps = await lineUpService.GetBulkAsync(player.LineUpIds);
-            var unknownLineUps = player.LineUpIds
+            var lineUps = await lineUpService.GetBulkAsync(dto.LineUpIds);
+            var unknownLineUps = dto.LineUpIds
                 .Where(id => lineUps.All(l => l.Id != id))
                 .Distinct()
                 .ToList();
             if (unknownLineUps.Any())
             {
-                return BadRequest($"Invalid lineUp IDs : {string.Join(',', unknownLineUps)}.");
+                return BadRequest($"Invalid line up IDs : {string.Join(',', unknownLineUps)}.");
             }
         }
-        var createdPlayer = await playerService.CreateAsync(player);
+        var createdPlayer = await playerService.CreateAsync(dto);
         return CreatedAtAction("GetPlayer", new { id = createdPlayer.Id }, createdPlayer);
+    }
+    
+    [HttpPut]
+    public async Task<IActionResult> UpdateAsync(PlayerDto dto)
+    {
+        if (string.IsNullOrEmpty(dto.Id) || !ObjectId.TryParse(dto.Id, out _))
+        {
+            return BadRequest("Invalid player ID.");
+        }
+        if (dto.LineUpIds.Length > 0)
+        {
+            foreach (var lineUpId in dto.LineUpIds)
+            {
+                if (string.IsNullOrEmpty(lineUpId) || !ObjectId.TryParse(lineUpId, out _))
+                {
+                    return BadRequest($"Invalid line up ID: {lineUpId}.");
+                }
+            }
+            var lineUps = await lineUpService.GetBulkAsync(dto.LineUpIds);
+            var unknownLineUps = dto.LineUpIds
+                .Where(id => lineUps.All(l => l.Id != id))
+                .Distinct()
+                .ToList();
+            if (unknownLineUps.Any())
+            {
+                return BadRequest($"Invalid line up IDs : {string.Join(',', unknownLineUps)}.");
+            }
+        }
+        var updatedPlayer = await playerService.UpdateAsync(dto);
+        if (updatedPlayer == null)
+            return NoContent();
+        return Ok(updatedPlayer);
+    }
+    
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteAsync([FromRoute] string id)
+    {
+        if (string.IsNullOrEmpty(id) || !ObjectId.TryParse(id, out _))
+        {
+            return BadRequest("Invalid player ID.");
+        }
+        var deletedCount = await playerService.DeleteAsync(id);
+        if (deletedCount == 0)
+            return NoContent();
+        return Ok(deletedCount);
     }
 }

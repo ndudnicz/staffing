@@ -5,8 +5,6 @@ namespace StaffingApi.Entities.Dto;
     
 public class LineUpDto
 {
-    private LineUpDto() {}
-
     public static LineUpDto? FromLineUp(LineUp? lineUp)
     {
         if (lineUp == null) return null;
@@ -15,7 +13,8 @@ public class LineUpDto
             Id = lineUp.Id,
             Name = lineUp.Name,
             Created = lineUp.Created,
-            Modified = lineUp.Modified
+            Modified = lineUp.Modified,
+            PlayerIds = lineUp.PlayerIds.ToArray()
         };
     }
 
@@ -26,6 +25,7 @@ public class LineUpDto
 
     public string Id { get; set; }
     public string Name { get; set; }
+    public string[] PlayerIds { get; set; } = [];
     public DateTime Created { get; set; }
     public DateTime? Modified { get; set; }
 }

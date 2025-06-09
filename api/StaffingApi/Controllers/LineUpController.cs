@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using StaffingApi.Entities.Bson;
+using StaffingApi.Entities.Dto;
 using StaffingApi.Services;
 
 namespace StaffingApi.Controllers;
@@ -14,7 +15,7 @@ public class LineUpController(ILineUpService lineUpService): ControllerBase
     {
         if (string.IsNullOrEmpty(id) || !ObjectId.TryParse(id, out _))
         {
-            return BadRequest("Invalid player ID.");
+            return BadRequest("Invalid line up ID.");
         }
         var result = await lineUpService.GetAsync(id);
         if (result == null)
@@ -32,9 +33,35 @@ public class LineUpController(ILineUpService lineUpService): ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateAsync(LineUp player)
+    public async Task<IActionResult> CreateAsync(CreateLineUpDto dto)
     {
-        var createdLineUp = await lineUpService.CreateAsync(player);
+        var createdLineUp = await lineUpService.CreateAsync(dto);
         return CreatedAtAction("GetLineUp", new { id = createdLineUp.Id }, createdLineUp);
+    }
+    
+    [HttpPut]
+    public async Task<IActionResult> UpdateAsync(LineUpDto dto)
+    {
+        if (string.IsNullOrEmpty(dto.Id) || !ObjectId.TryParse(dto.Id, out _))
+        {
+            return BadRequest("Invalid line up ID.");
+        }
+        var updatedLineUp = await lineUpService.UpdateAsync(dto);
+        if (updatedLineUp == null)
+            return NoContent();
+        return Ok(updatedLineUp);
+    }
+    
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteAsync([FromRoute] string id)
+    {
+        if (string.IsNullOrEmpty(id) || !ObjectId.TryParse(id, out _))
+        {
+            return BadRequest("Invalid line up ID.");
+        }
+        var deletedCount = await lineUpService.DeleteAsync(id);
+        if (deletedCount == 0)
+            return NoContent();
+        return Ok(new { DeletedCount = deletedCount });
     }
 }

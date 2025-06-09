@@ -23,11 +23,12 @@ namespace StaffingApi.Tests.Repositories
             {
                 _id = ObjectId.GenerateNewId(),
                 Name = name,
-                Created = DateTime.UtcNow
+                Created = DateTime.UtcNow,
+                PlayerIds = []
             };
 
         [Fact]
-        public async Task GetAsync_ShouldReturnDto_WhenIdMatches()
+        public async Task GetAsync_ShouldReturn_WhenIdMatches()
         {
             // Arrange
             var dbName = Guid.NewGuid().ToString();
@@ -43,11 +44,11 @@ namespace StaffingApi.Tests.Repositories
 
             // Assert
             result.Should().NotBeNull();
-            result!.Name.Should().Be(lineUp.Name);
+            result.Name.Should().Be(lineUp.Name);
         }
 
         [Fact]
-        public async Task GetBulkAsync_ShouldReturnDtos_WhenIdsMatch()
+        public async Task GetBulkAsync_ShouldReturn_WhenIdsMatch()
         {
             // Arrange
             var dbName = Guid.NewGuid().ToString();
@@ -72,7 +73,7 @@ namespace StaffingApi.Tests.Repositories
         }
 
         [Fact]
-        public async Task GetByNameAsync_ShouldReturnDto_WhenNameMatches()
+        public async Task GetByNameAsync_ShouldReturn_WhenNameMatches()
         {
             // Arrange
             var dbName = Guid.NewGuid().ToString();
@@ -88,11 +89,11 @@ namespace StaffingApi.Tests.Repositories
 
             // Assert
             result.Should().NotBeNull();
-            result!.Name.Should().Be("Best Team");
+            result.Name.Should().Be("Best Team");
         }
 
         [Fact]
-        public async Task CreateAsync_ShouldInsertLineUpAndReturnDto()
+        public async Task CreateAsync_ShouldInsertLineUpAndReturn()
         {
             // Arrange
             var dbName = Guid.NewGuid().ToString();
@@ -101,7 +102,8 @@ namespace StaffingApi.Tests.Repositories
 
             var newLineUp = new LineUp
             {
-                Name = "Created Team"
+                Name = "Created Team",
+                PlayerIds = []
             };
 
             // Act
@@ -113,7 +115,7 @@ namespace StaffingApi.Tests.Repositories
 
             var inserted = await context.LineUps.FirstOrDefaultAsync(x => x._id == ObjectId.Parse(result.Id));
             inserted.Should().NotBeNull();
-            inserted!.Created.Should().NotBe(default);
+            inserted.Created.Should().NotBe(default);
         }
     }
 }

@@ -4,8 +4,6 @@ namespace StaffingApi.Entities.Bson;
     
 public class PlayerDto
 {
-    private PlayerDto() {}
-    
     public static PlayerDto? FromPlayer(Player? player)
     {
         if (player == null) return null;
