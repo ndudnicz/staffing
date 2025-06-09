@@ -5,9 +5,9 @@ using StaffingApi.Repositories.EF.Config;
 
 namespace StaffingApi.Repositories.EF.Context;
 
-public class PlayerDbContext(DbContextOptions options) : DbContext(options), IPlayerDbContext
+public class PlayerDbContext(DbContextOptions<PlayerDbContext> options) : DbContext(options), IPlayerDbContext
 {
-    public DbSet<Player> Players { get; init; }
+    public virtual DbSet<Player> Players { get; init; }
     private const string CollectionName = "players";
     
     public static PlayerDbContext Create(IMongoConfig mongoConfig) =>

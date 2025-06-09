@@ -1,7 +1,9 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using MongoDB.Driver;
 using StaffingApi.Repositories.EF;
 using StaffingApi.Repositories.EF.Config;
+using StaffingApi.Repositories.EF.Context;
 using StaffingApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,12 +27,27 @@ if (configuration["DatabaseName"] == null)
 {
     throw new ArgumentNullException("DatabaseName", "DatabaseName is not set in the configuration.");
 }
+
+// Register MongoDB configuration
 builder.Services.AddSingleton<IMongoConfig>(s => new MongoConfig(mongoClient, configuration["DatabaseName"]));
 
-builder.Services.AddTransient<IPlayerContextRepository, PlayerContextRepository>();
-builder.Services.AddTransient<IPlayerService, PlayerService>();
+// Register DbContext and repositories
+builder.Services.AddDbContext<LineUpDbContext>((sp, options) =>
+{
+    var mongoConfig = sp.GetRequiredService<IMongoConfig>();
+    options.UseMongoDB(mongoConfig.MongoClient, mongoConfig.DatabaseName);
+});
+builder.Services.AddScoped<IPlayerContextRepository, PlayerContextRepository>();
 
-builder.Services.AddTransient<ILineUpContextRepository, LineUpContextRepository>();
+builder.Services.AddDbContext<PlayerDbContext>((sp, options) =>
+{
+    var mongoConfig = sp.GetRequiredService<IMongoConfig>();
+    options.UseMongoDB(mongoConfig.MongoClient, mongoConfig.DatabaseName);
+});
+builder.Services.AddScoped<ILineUpContextRepository, LineUpContextRepository>();
+
+// Register services
+builder.Services.AddTransient<IPlayerService, PlayerService>();
 builder.Services.AddTransient<ILineUpService, LineUpService>();
 
 var app = builder.Build();

@@ -1,11 +1,13 @@
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace StaffingApi.Entities.Bson;
 
 public abstract class AMyBsonEntity
 {
     protected AMyBsonEntity() {}
+    [Key]
     [BsonId]
     [BsonElement("_id")]
     public ObjectId _id { get; set; }

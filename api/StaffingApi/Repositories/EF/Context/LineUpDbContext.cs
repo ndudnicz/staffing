@@ -5,9 +5,9 @@ using StaffingApi.Repositories.EF.Config;
 
 namespace StaffingApi.Repositories.EF.Context;
 
-public class LineUpDbContext(DbContextOptions options) : DbContext(options), ILineUpDbContext
+public class LineUpDbContext(DbContextOptions<LineUpDbContext> options) : DbContext(options), ILineUpDbContext
 {
-    public DbSet<LineUp> LineUps { get; init; }
+    public virtual DbSet<LineUp> LineUps { get; init; }
     private const string CollectionName = "lineups";
     
     public static LineUpDbContext Create(IMongoConfig mongoConfig) =>

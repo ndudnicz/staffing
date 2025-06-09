@@ -6,22 +6,27 @@ using StaffingApi.Repositories.EF.Context;
 
 namespace StaffingApi.Repositories.EF;
 
-public class PlayerContextRepository(IMongoConfig mongoConfig): IPlayerContextRepository
+public class PlayerContextRepository: IPlayerContextRepository
 {
+    private readonly PlayerDbContext _db;
+    
+    public PlayerContextRepository(PlayerDbContext db)
+    {
+        _db = db;
+    }
+    
     public async Task<PlayerDto?> GetAsync(string id)
     {
-        await using var db = PlayerDbContext.Create(mongoConfig);
-        return PlayerDto.FromPlayer(await db.Players.FirstOrDefaultAsync(x => x._id == ObjectId.Parse(id)));
+        return PlayerDto.FromPlayer(await _db.Players.FirstOrDefaultAsync(x => x._id == ObjectId.Parse(id)));
     }
     
     public async Task<PlayerDto> CreateAsync(Player element)
     {
-        await using var db = PlayerDbContext.Create(mongoConfig);
         element._id = ObjectId.GenerateNewId();
         element.Created = DateTime.UtcNow;
         element.Modified = null;
-        await db.Players.AddAsync(element);
-        await db.SaveChangesAsync();
+        await _db.Players.AddAsync(element);
+        await _db.SaveChangesAsync();
         return PlayerDto.FromPlayer(element)!;
     }
 }
