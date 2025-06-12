@@ -4,7 +4,7 @@ using StaffingApi.Entities.Dto;
 
 namespace StaffingApi.Entities.Bson;
 
-public class LineUp: AMyBsonEntity
+public class LineUp: MyBsonEntity
 {
     [BsonElement("name")]
     public required string Name { get; set; }

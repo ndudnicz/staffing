@@ -1,6 +1,6 @@
 namespace StaffingApi.Entities.Bson;
 
-public class Job: AMyBsonEntity
+public class Job: MyBsonEntity
 {
     public required string Name { get; set; }
     public required string Description { get; set; }

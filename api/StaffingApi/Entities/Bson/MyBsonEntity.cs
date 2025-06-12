@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace StaffingApi.Entities.Bson;
 
-public abstract class AMyBsonEntity
+public abstract class MyBsonEntity
 {
-    protected AMyBsonEntity() {}
+    protected MyBsonEntity() {}
     [Key]
     [BsonId]
     [BsonElement("_id")]
