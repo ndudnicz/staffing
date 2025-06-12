@@ -20,6 +20,12 @@ public class PlayerContextRepository: IPlayerContextRepository
         return await _db.Players.FirstOrDefaultAsync(x => x._id == ObjectId.Parse(id));
     }
     
+    public async Task<IEnumerable<Player>> GetBulkAsync(string[] ids)
+    {
+        var objectIds = ids.Select(id => ObjectId.Parse(id)).ToArray();
+        return await _db.Players.Where(x => objectIds.Contains(x._id)).ToListAsync();
+    }
+    
     public async Task<Player> CreateAsync(Player element)
     {
         element._id = ObjectId.GenerateNewId();
@@ -40,6 +46,23 @@ public class PlayerContextRepository: IPlayerContextRepository
         element.LineUpIds = updatedElement.LineUpIds.ToArray();
         await _db.SaveChangesAsync();
         return element;
+    }
+
+    public async Task<int> UpdateBulkAsync(IEnumerable<Player> updatedElements)
+    {
+        var elements = await _db.Players
+            .Where(x => updatedElements.Select(e => e._id).Contains(x._id))
+            .ToListAsync();
+        var updatedElementsSet = updatedElements.ToDictionary(e => e._id);
+        foreach (var element in elements)
+        {
+            if (!updatedElementsSet.TryGetValue(element._id, out var updatedElement))
+                continue;
+            element.Modified = DateTime.UtcNow;
+            element.Name = updatedElement.Name;
+            element.LineUpIds = updatedElement.LineUpIds.ToArray();
+        }
+        return await _db.SaveChangesAsync();
     }
     
     public async Task<int> DeleteAsync(string id)

@@ -11,7 +11,7 @@ public class LineUp: AMyBsonEntity
     [BsonElement("playerIds")]
     public required string[] PlayerIds { get; set; } = [];
     
-    public static LineUp FromLineUpDto(LineUpDto dto)
+    public static LineUp? FromLineUpDto(LineUpDto dto)
     {
         return new LineUp
         {
@@ -28,7 +28,7 @@ public class LineUp: AMyBsonEntity
         return new LineUp
         {
             Name = dto.Name,
-            PlayerIds = dto.PlayerIds.ToArray()
+            PlayerIds = []
         };
     }
 }

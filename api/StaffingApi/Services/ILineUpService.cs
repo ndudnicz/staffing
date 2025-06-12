@@ -11,4 +11,6 @@ public interface ILineUpService
     public Task<LineUpDto> CreateAsync(CreateLineUpDto dto);
     public Task<LineUpDto?> UpdateAsync(LineUpDto dto);
     public Task<int> DeleteAsync(string id);
+    public Task<LineUpDto?> AddPlayerAsync(LineUpDto existingLineUp, PlayerDto existingPlayer);
+    public Task<LineUpDto?> RemovePlayerAsync(LineUpDto existingLineUp, PlayerDto existingPlayer);
 }
